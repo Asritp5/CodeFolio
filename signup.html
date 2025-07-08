@@ -1,0 +1,83 @@
+{% extends 'ParentTemplate.html' %}
+
+{% block title %}CodeFolio- Sign Up{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 10%;">
+    <section class="auth-section">
+        <h2>Sign Up for CodeFolio</h2>
+        <br>
+        {% if request.session.otp and not request.session.otp_success %}
+        <h3> An OTP has been sent to your mail</h3>
+        {% endif %}
+        <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            {% if not request.session.otp %}
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <input type="submit" value="send OTP" class="btn btn-primary outline"/>
+            {% elif request.session.otp and not request.session.otp_success %}
+                <div class="form-group">
+                    <label for="otp">Enter OTP</label>
+                    <input type="text" id="otp" name="otp" required><br>
+                </div>
+                <input type="submit" value="Validate OTP" class="btn btn-primary outline"/>
+            
+            {% elif request.session.otp_success %}
+            
+                <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password1" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="password2" required>
+                </div>
+                <div class="form-group">
+                    <label>Profile Visibility</label>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <label>
+                            <input type="radio" name="profile_visibility" value="public" title="Profile visible using search and user-link" checked>
+                            Public
+                        </label>
+                        <label>
+                            <input type="radio" name="profile_visibility" value="private" title="Profile visible only using user-link not using search">
+                            Private
+                        </label>
+                        <label>
+                            <input type="radio" name="profile_visibility" value="secured" title="Profile not visible using search or user-link">
+                            Secure
+                        </label>
+                    </div>
+                    <input type="submit" value="Sign Up" class="btn btn-primary outline"/>
+                </div>
+            {% endif %}        
+            
+            <p class="mt-2 text-center">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+            {% if form.errors %}
+                <div class="alert alert-danger mt-3">
+                    {% for field in form %}
+                        {{ field.errors }}
+                    {% endfor %}
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            {% if messages %}
+                <div class="alert alert-danger mt-3">
+                    {% for err_msg in messages %}
+                        {{ err_msg }}
+                    {% endfor %}
+                    
+                </div>
+            {% endif %}
+        </form>
+    </section>
+</div>
+{% endblock %}
+

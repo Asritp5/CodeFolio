@@ -1,0 +1,21 @@
+{% extends 'ParentTemplate.html' %}
+
+{% block title %}CodeFolio- About Us{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 10%;">
+    <h1>About Us</h1>
+    <p>Welcome to CodeFolio, your ultimate coding companion! We are a passionate team of developers and educators dedicated to helping you track, analyze, and showcase your coding journey.</p>
+    <p>Our mission is to empower coders of all levels by providing a platform that simplifies the process of tracking coding progress across various platforms. Whether you're a beginner or an experienced developer, CodeFolio is designed to help you understand your strengths and areas for improvement.</p>
+    <p>Join us on this exciting journey and take your coding skills to the next level!</p>
+
+    <br><h2>Our Team</h2>
+    <p>We are a diverse group of individuals with a shared passion for coding and technology. Our team consists of software engineers, data analysts, and educators who work tirelessly to bring you the best coding experience.</p>
+    <p>We believe in the power of collaboration and are always open to feedback and suggestions from our users. If you have any ideas or features you'd like to see, feel free to reach out!</p>
+    <p>Thank you for choosing CodeFolio. We look forward to being a part of your coding journey!</p><br><br>
+    
+    <br><h2>Contact Us</h2>    
+    <p>If you have any questions or feedback, please don't hesitate to reach out to us at <a href="{% url 'contact' %}">Contact Us</a>.</p>
+    <br>
+</div>
+{% endblock %}

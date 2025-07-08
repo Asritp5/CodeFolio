@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CodeFolio- Coding Excellence{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                <img src="{% static 'img/favicon.png' %}" alt="Codefolio Logo" class="logo-icon">
+                    <span class="logo-text">CodeFolio</span>
+                </a>
+
+                <div class="nav-links" id="navLinks">
+                    
+                    <a href="{% url 'search' %}" class="nav-link">Search Profiles</a>
+                    <a href="{% url 'features' %}" class="nav-link">Features</a>
+                    <a href="{% url 'contact' %}" class="nav-link">Contact</a>
+                    {% if not request.session.userid %}
+                    <div class="nav-buttons">
+                        <a href="{% url 'login' %}" class="btn btn-outline">Log in</a>
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign up</a>
+                    </div>
+                    {% else %}
+                    <div class="nav-buttons">
+                        <a href="{% url 'dashboard' request.session.userid %}" class="nav-link">My Dashboard</a>&nbsp;&nbsp;
+                        &nbsp;
+                        <a href="{% url 'profile' %}" class="nav-link">Profile</a>
+                    </div>
+                    {% endif %}    
+            </div>
+        </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-text">CodeFolio</span>
+                    <p>Track, analyze, and showcase your coding excellence.</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h3>Product</h3>
+                        <a href="{% url 'features' %}">Features</a>
+                        <!-- <a href="#pricing">Pricing</a> -->
+                    </div>
+                    <div class="footer-section">
+                        <h3>Company</h3>
+                        <a href="{% url 'about' %}">About</a>
+                        <a href="{% url 'contact' %}">Contact</a>
+                    </div>
+                    <div class="footer-section">
+                        <h3>Legal</h3>
+                        <a href="{% url 'terms' %}">Privacy and Terms</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 CodeFolio. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

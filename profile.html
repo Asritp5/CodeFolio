@@ -1,0 +1,118 @@
+{% extends 'ParentTemplate.html' %}
+{% block title %}
+  CodeFolio-Profile Management
+{% endblock title %}
+{% block content %}
+
+<div class="container mt-5" style="margin-top: 5%;">
+
+<!-- Flash Messages -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-info">{{ message }}</div>
+    {% endfor %}
+  <br>
+  <br>
+    {% endif %}
+
+<div>
+    <h3>CodeFolio Profile link:</h3>
+    <p>
+          {{ profile_url }}
+    </p>
+</div>
+<br>
+<br>
+  <form method="POST" action="{% url 'update-username' %}">
+    {% csrf_token %}
+    <label>Username:</label>
+    <input type="text" name="username" value="{{ request.session.username }}" />
+    
+    <button type="submit" class="btn btn-primary">Update Username </button>
+</form>
+<br>
+<br>
+  <form method="POST" action="{% url 'update_visibility' %}">
+    {% csrf_token %}
+    <label>Profile Visibility:</label>
+    <select name="profile_visibility">
+        <option title="Profile visible only using user-link not using search" value="private" {% if visibility == "private" %}selected{% endif %}>Private</option>
+        <option title="Profile visible using search and user-link" value="public" {% if visibility == "public" %}selected{% endif %}>Public</option>
+        <option title="Profile not visible using search or user-link" value="secured" {% if visibility == "secured" %}selected{% endif %}>Secure</option> 
+    </select>
+    
+    <button type="submit" class="btn btn-primary">Update Visibility</button>
+</form>
+<br>
+<br>
+  <h2>Link Your Platform Profiles</h2><br>
+
+  <!-- Platform Section -->
+  {% for platform in platforms %}
+    <div class="mb-3">
+      <strong>{{ platform.name|title }}</strong>:
+       {% if platform.name == "leetcode" %}
+        <span style="color: gray;">https://leetcode.com/u/</span>
+    {% elif platform.name == "gfg" %}
+        <span style="color: gray;">https://www.geeksforgeeks.org/user/</span>
+    {% elif platform.name == "codeforces" %}
+        <span style="color: gray;">https://codeforces.com/profile/</span>
+    {% else %}
+        <span style="color: gray;">https://platform.com/user/</span>
+    {% endif %}
+      {% if platform.verified %}
+        {{ platform.username }}
+        <form method="POST" action="{% url 'delete_platform' platform.name %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+        <span class="badge bg-success ms-2">Verified</span>
+      {% else %}
+        <form method="POST" action="{% url 'verify_platform' platform.name %}" style="display:inline;">
+          {% csrf_token %}
+          <input type="text" name="username" value="{{ platform.username }}" required>
+          <button type="submit" class="btn btn-primary btn-sm">Verify</button>
+        </form>
+        <span class="badge bg-warning ms-2">Not Verified</span>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+
+
+  <!-- Verification Code Box -->
+  {% if verification_code and platform_name %}
+  <div id="verification-code-box" style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+    <h4>Verification Code</h4>
+    <p>
+      Paste this code in your
+      {% if platform_name == "leetcode" %}<b>Leetcode Name(in basic info of Profile)</b>{% endif %}
+      {% if platform_name == "gfg" %}<b>GFG Display Name</b>{% endif %}
+      {% if platform_name == "codeforces" %}<b>Codeforces first name</b>{% endif %}
+      field:
+    </p>
+    <code style="font-size: 1.2em; color: #d63384;">{{ verification_code }}</code>
+    <form method="POST" action="{% url 'verify_platform' platform_name %}">
+        {% csrf_token %}
+        <input type="hidden" name="username" value="{{ entered_username }}">
+        <input type="hidden" name="verification_code" value="{{ verification_code }}">
+        <button type="submit" class="btn btn-success mt-2">I've Added the Code - Verify Now</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <a href="{% url 'dashboard' request.session.userid %}" class="btn btn-primary mt-3">&larr; Dashboard</a>
+  <br><br>
+  <a href="{% url 'logout' %}" class="btn btn-primary">Log out</a>
+
+  <a href="{% url 'delete-user' request.session.userid %}" class="btn btn-outline">Delete Profile</a>
+  {% if request.session.delete_user_req %}
+  <div>
+
+  </div>
+  {% endif %}
+</div>
+<br>
+<br>
+{% endblock %}
+

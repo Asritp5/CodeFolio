@@ -1,0 +1,189 @@
+{% extends "ParentTemplate.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cal-heatmap@4/dist/cal-heatmap.min.css"/>
+{% endblock head %}
+
+{% block title %}
+  CodeFolio- Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+  <div class="container mt-4" style="margin-top: 5%; margin-bottom: 5%;">
+    <div style="background-color:#c4dce8;">
+    {% if not is_latest %}
+    <div class="alert alert-warning text-center" role="alert">
+      ⚠️ Latest data could not be fetched. Showing cached data.
+    </div>
+    {% endif %}
+
+    <!-- USER INFO & STREAKS -->
+    <section class="heatmap-container" style="background-color:#c4dce8;color:#417690;">
+      <h3 class="user-info-name">{{ name }}</h3>
+      <p class="user-info-email">{{ email }}</p>
+      <br>
+      <div class="streak-values d-flex justify-content-center flex-wrap gap-4 mt-3">
+        <div>
+          <span><strong>🔥 Current Streak-</strong>{{ current_streak }}
+          &nbsp;&nbsp;
+          <strong>🏆 Max Streak-</strong>{{ max_streak }}
+          </span>  
+        </div>
+      </div>
+    </section>
+    <br>
+    <br>
+    <!-- ACHIEVEMENTS -->
+    <div style="display: none;">
+      <button class="btn btn-primary"
+              id="achievements-toggle"
+              aria-expanded="false"
+              aria-controls="achievements-section">
+        Achievements
+      </button>
+    </div>
+
+    <section id="achievements-section" class="d-none">
+      <div class="badge-grid">
+        {% for badge in badges %}
+        <div class="badge-item">
+          {% if badge.icon_url %}
+            <img src="{{ badge.icon_url }}" alt="{{ badge.label }} badge" class="badge-icon">
+          {% endif %}
+          <div class="badge-label">{{ badge.label }}</div>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted w-100">No badges yet.</p>
+        {% endfor %}
+
+        {% if has_leetcode and leetcode_username %}
+        <div class="badge-item w-100 text-center mt-3">
+          <h6 class="badge-label">Your LeetCode Badges</h6>
+          <img
+            src="https://leetcode-badge-showcase.vercel.app/api?username={{ leetcode_username }}&animated=true"
+            alt="LeetCode Badges"
+            class="img-fluid"
+            style="max-width: 100%; height: auto;"
+          />
+        </div>
+        {% endif %}
+      </div>
+      </div>
+      {% if has_codeforces %}
+        {% if codeforces.rank or codeforces.max_rank %}
+        <div class="text-center mt-2">
+          <h5 class="streak-label">Codeforces Ranks</h5>
+          <p><strong>Current:</strong> {{ codeforces.rank|default:"N/A" }}</p>
+          <p><strong>Max:</strong> {{ codeforces.max_rank|default:"N/A" }}</p>
+        </div>
+        {% endif %}
+      {% endif %}
+    </section>
+    <br>
+    <br>
+    <!-- ACTIVITY CALENDAR -->
+    <section style="display: none;">
+      <h4 class="text-center section-title">Activity Calendar</h4>
+      <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
+        <label for="streak-range" class="visually-hidden">Select Streak Range</label>
+        <select id="streak-range" class="form-select w-auto">
+          <option value="month">This Month</option>
+          <option value="6months">Last 6 Months</option>
+          <option value="1year">Last 1 Year</option>
+        </select>
+      </div>
+      <div id="calendar-wrapper"
+           data-activity-json='{{ heatmap_json|safe }}'
+           data-platforms-per-day='{{ platforms_per_day|safe }}'></div>
+      {% if current_streak == 0 and max_streak == 0 and not heatmap_json %}
+        <p class="text-muted text-center">No streak to show.</p>
+      {% endif %}
+    </section>
+
+    <!-- CODEFORCES RATING -->
+    {% if has_codeforces %}
+    <section id="codeforces-section"
+             class="platform-card mb-5" style="background-color: #c4dce8;"
+             data-platform-data='{{ codeforces|safe }}'>
+      <h3 class="text-center section-title" style="color: #417690;">Codeforces Rating</h3>
+      <div id="cf_rating_chart" style="color: #417690;"></div>
+      
+    </section>
+    {% endif %}
+    <br>
+<br>
+    <div class="heatmap-container">
+    <div class="card shadow-lg"  style="background-color: #c4dce8;">
+  <div class="card-header text-center" style="color:#417690;background-color: #c4dce8;">
+    <h3>Activity Highlights</h3>
+  </div>
+  <div class="card-body heatmap-container" style="color:#417690;background-color: #c4dce8;">
+    <div class="heatmap-controls" >
+      <label for="monthsSelect">Show past: </label>
+      <select id="monthsSelect">
+        <option value="1" selected>1 Month</option>
+        <option value="6">6 Months</option>
+        <option value="12">12 Months</option>
+      </select>
+    </div>
+
+    <!-- Original Year View -->
+    <div class="month-grid" id="monthGrid"></div>
+
+    <!-- New 1-Month Calendar View -->
+    <div id="calendarContainer" style="display: none;">
+      <h3 style="text-align:center;" id="calendarTitle"></h3>
+      <div class="calendar-grid calendar-header">
+        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+  </div>
+</div>
+  </div>
+    <br>
+    <br>
+    
+</div>
+{{ leetcode_calendar_json|json_script:"leetcode-year-data" }}
+<div>
+    <!-- LEETCODE/GFG STATS -->
+    {% if has_leetcode or has_gfg %}
+<section id="lc-gfg-section"
+         class="platform-card mb-5"
+         data-lc-topic='{{ leetcode|safe }}'
+         data-gfg-topic='{{ gfg|safe }}'
+         data-cf-topic='{{ codeforces|safe }}' style="background-color: #c4dce8;margin: 5%;color: #417690;">
+  <div class="d-flex justify-content-center gap-2 mb-3" style="background-color: #c4dce8;">
+    <select id="platform-select" class="form-select w-auto" style="background-color: #c4dce8;">
+      {% if has_leetcode %}<option value="leetcode">LeetCode</option>{% endif %}
+      {% if has_gfg %}<option value="gfg">GeeksforGeeks</option>{% endif %}
+      
+      {% if has_leetcode and has_gfg  %}
+        <option value="both">Both</option>
+      {% endif %}
+    </select>
+    <select id="mode-select" class="form-select w-auto" style="background-color: #c4dce8;color: #417690;">
+      <option value="topic">Topic-wise</option>
+      <option value="level">Level-wise</option>
+    </select>
+  </div>
+  <h4 id="lg-chart-title" class="text-center mb-2 section-title"></h4>
+  <div id="lg_chart" style="background-color: #c4dce8;margin: 5%;color: #417690;"></div>
+</section>
+{% endif %}
+
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.3/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.0/dist/cal-heatmap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cal-heatmap@4.2.0/dist/plugins/Legend.min.js"></script>
+{% endblock scripts %}

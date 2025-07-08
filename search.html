@@ -1,0 +1,38 @@
+{% extends 'ParentTemplate.html' %}
+
+{% block title %}
+    CodeFolio- Search Profiles
+{% endblock title %}
+
+{% block content %}
+<div style="margin: 10%;margin-bottom: 0%;">
+<form method="POST" action="">
+    {% csrf_token %}
+    <label>Enter username or email:</label>
+    <input name="search" placeholder="Username or Email" /><br>
+    <input type="submit" value="Search" class="btn btn-primary"/><br><br>
+    {% if messages %}
+        {% for msg in messages %}
+            {{ msg }}
+        {% endfor %}
+    {% endif %}        
+</form>
+</div>
+<br>
+<br>
+<div style="margin: 10%;margin-top: 5%;">
+{% if reqd_users %}
+    {% for reqd_user in reqd_users %}
+        <div class="user-list">
+            Name: {{ reqd_user.username }}<br>
+            
+            {% if reqd_user.user_id %}
+                <a href="{% url 'dashboard' reqd_user.user_id %}">View Profile</a>
+            {% else %}
+                <p>This profile is marked private.</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}    
+</div>
+{% endblock content %}
